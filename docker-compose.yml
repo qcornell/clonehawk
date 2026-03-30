@@ -1,0 +1,22 @@
+version: "3.8"
+
+services:
+  clonehawk:
+    build: .
+    container_name: clonehawk
+    ports:
+      - "3456:3456"
+    volumes:
+      - clonehawk-data:/app/.workspaces
+    env_file:
+      - .env
+    environment:
+      - NODE_ENV=production
+      - PORT=3456
+      - UPLOAD_MAX_MB=200
+      - SESSION_TTL_HOURS=24
+      - MAX_SESSIONS=50
+    restart: unless-stopped
+
+volumes:
+  clonehawk-data:
