@@ -1622,8 +1622,8 @@ const imgUpload = multer({
 app.post('/api/image/replace', imgUpload.single('image'), (req, res) => {
   const session = getSession(req, res);
   if (!session?.projectPath) return res.status(400).json({ error: 'No project loaded' });
-  const { targetPath } = req.body;
-  console.log('[image/replace] targetPath:', targetPath, '| projectPath:', session.projectPath);
+  const { targetPath, currentSrc, resolvedSrc } = req.body;
+  console.log('[image/replace] targetPath:', targetPath, '| currentSrc:', currentSrc, '| resolvedSrc:', resolvedSrc, '| projectPath:', session.projectPath);
 
   if (!targetPath) {
     if (req.file) try { fs.unlinkSync(req.file.path); } catch (_) {}
@@ -1635,45 +1635,88 @@ app.post('/api/image/replace', imgUpload.single('image'), (req, res) => {
   }
 
   try {
-    let fp = safePath(session.projectPath, targetPath);
-    console.log('[image/replace] safePath resolved:', fp, '| exists:', fp ? fs.existsSync(fp) : 'null');
-
-    // Normalize: strip query strings, decode URI
-    let cleanTarget = targetPath;
-    try { cleanTarget = decodeURIComponent(cleanTarget); } catch(_) {}
-    cleanTarget = cleanTarget.split('?')[0];
-    // Strip /api/preview/ prefix if client accidentally sent it
-    if (cleanTarget.startsWith('/api/preview/')) cleanTarget = cleanTarget.substring('/api/preview/'.length);
-    if (cleanTarget.startsWith('/api/image/')) cleanTarget = cleanTarget.substring('/api/image/'.length);
-    if (cleanTarget.startsWith('/')) cleanTarget = cleanTarget.substring(1);
-
-    // Re-resolve with cleaned path
-    if (!fp || !fs.existsSync(fp)) {
-      fp = safePath(session.projectPath, cleanTarget);
-      console.log('[image/replace] Cleaned target:', cleanTarget, '| resolved:', fp, '| exists:', fp ? fs.existsSync(fp) : 'null');
+    // Helper to clean and normalize a src path for resolution
+    function cleanSrcPath(raw) {
+      if (!raw) return null;
+      let cleaned = raw;
+      try { cleaned = decodeURIComponent(cleaned); } catch(_) {}
+      cleaned = cleaned.split('?')[0].split('#')[0]; // strip query/hash
+      if (cleaned.startsWith('/api/preview/')) cleaned = cleaned.substring('/api/preview/'.length);
+      if (cleaned.startsWith('/api/image/')) cleaned = cleaned.substring('/api/image/'.length);
+      if (cleaned.startsWith('/')) cleaned = cleaned.substring(1);
+      return cleaned;
     }
 
-    // If direct path doesn't exist, try to find the image by filename in project
-    if (!fp || !fs.existsSync(fp)) {
+    // Build list of candidate paths to try, in priority order
+    const candidatePaths = [
+      targetPath,
+      cleanSrcPath(targetPath),
+      cleanSrcPath(currentSrc),
+      cleanSrcPath(resolvedSrc),
+    ].filter(Boolean);
+
+    // Remove duplicates
+    const uniqueCandidates = [...new Set(candidatePaths)];
+
+    let fp = null;
+    let matchedPath = null;
+
+    // Phase 1: Try direct path resolution for each candidate
+    for (const candidate of uniqueCandidates) {
+      const resolved = safePath(session.projectPath, candidate);
+      if (resolved && fs.existsSync(resolved)) {
+        fp = resolved;
+        matchedPath = candidate;
+        console.log('[image/replace] Direct match:', candidate, '→', fp);
+        break;
+      }
+    }
+
+    // Phase 2: If no direct match, try filename-based fallback
+    if (!fp) {
       const images = findImageFiles(session.projectPath);
-      const targetName = path.basename(cleanTarget);
-      console.log('[image/replace] Trying filename fallback:', targetName);
-      const match = images.find(img => img.path === cleanTarget) ||
-                    images.find(img => img.path === targetPath) ||
-                    images.find(img => img.path.endsWith('/' + targetName) || img.path === targetName) ||
-                    images.find(img => img.name === targetName);
-      if (match) {
-        fp = path.join(session.projectPath, match.path);
-        console.log('[image/replace] Fallback match found:', match.path, '→', fp);
+      for (const candidate of uniqueCandidates) {
+        const targetName = path.basename(candidate);
+        if (!targetName) continue;
+        console.log('[image/replace] Trying filename fallback:', targetName, 'from candidate:', candidate);
+        const match = images.find(img => img.path === candidate) ||
+                      images.find(img => img.path.endsWith('/' + targetName) || img.path === targetName) ||
+                      images.find(img => img.name === targetName);
+        if (match) {
+          fp = path.join(session.projectPath, match.path);
+          matchedPath = match.path;
+          console.log('[image/replace] Fallback match found:', match.path, '→', fp);
+          break;
+        }
+      }
+    }
+
+    // Phase 3: Try partial/fuzzy path matching (for deeply nested httrack structures)
+    if (!fp) {
+      const images = findImageFiles(session.projectPath);
+      for (const candidate of uniqueCandidates) {
+        const segments = candidate.replace(/\\/g, '/').split('/').filter(Boolean);
+        if (segments.length < 2) continue;
+        // Try matching the last 2-3 path segments
+        const tail2 = segments.slice(-2).join('/');
+        const tail3 = segments.length >= 3 ? segments.slice(-3).join('/') : null;
+        const match = images.find(img => img.path.endsWith(tail2)) ||
+                      (tail3 ? images.find(img => img.path.endsWith(tail3)) : null);
+        if (match) {
+          fp = path.join(session.projectPath, match.path);
+          matchedPath = match.path;
+          console.log('[image/replace] Fuzzy tail match:', candidate, '→', match.path);
+          break;
+        }
       }
     }
 
     if (!fp || !fs.existsSync(fp)) {
       const allImages = findImageFiles(session.projectPath);
-      console.log('[image/replace] FAILED — target not found. Tried:', targetPath, '→ cleaned:', cleanTarget);
+      console.log('[image/replace] FAILED — target not found. Candidates tried:', uniqueCandidates);
       console.log('[image/replace] Available images:', allImages.map(i => i.path));
       fs.unlinkSync(req.file.path);
-      return res.status(404).json({ error: 'Target image not found: ' + targetPath, available: allImages.map(i => i.path).slice(0, 20) });
+      return res.status(404).json({ error: 'Target image not found: ' + targetPath, tried: uniqueCandidates, available: allImages.map(i => i.path).slice(0, 20) });
     }
 
     // Snapshot the old image binary for undo
@@ -2690,6 +2733,145 @@ app.get('/api/site-colors', (req, res) => {
     }
 
     res.json(result);
+  } catch (e) {
+    res.status(500).json({ error: e.message });
+  }
+});
+
+// ─── Theme Override System ────────────────────────────────────
+// Manages a `clonehawk-overrides.css` file in the project root that uses
+// !important selectors to override header, footer, button, background, and
+// accent/link colors.  The frontend exposes semantic controls; this endpoint
+// persists them and injects the stylesheet into every HTML page.
+
+const THEME_FILE = 'clonehawk-overrides.css';
+
+// The six semantic slots we support
+const THEME_SLOTS = ['headerBg', 'footerBg', 'buttonBg', 'buttonText', 'bodyBg', 'accent'];
+
+function buildThemeCss(vars) {
+  // Only emit rules for slots that have a value
+  const lines = [
+    '/* CloneHawk Theme Overrides — auto-generated, do not hand-edit */',
+    ':root {'
+  ];
+  if (vars.headerBg)   lines.push(`  --ch-header-bg: ${vars.headerBg};`);
+  if (vars.footerBg)   lines.push(`  --ch-footer-bg: ${vars.footerBg};`);
+  if (vars.buttonBg)   lines.push(`  --ch-button-bg: ${vars.buttonBg};`);
+  if (vars.buttonText) lines.push(`  --ch-button-text: ${vars.buttonText};`);
+  if (vars.bodyBg)     lines.push(`  --ch-body-bg: ${vars.bodyBg};`);
+  if (vars.accent)     lines.push(`  --ch-accent: ${vars.accent};`);
+  lines.push('}');
+
+  if (vars.bodyBg) {
+    lines.push(`body { background-color: ${vars.bodyBg} !important; }`);
+  }
+  if (vars.accent) {
+    lines.push(`a, a:link, a:visited { color: ${vars.accent} !important; }`);
+  }
+  if (vars.headerBg) {
+    lines.push(`header, .header, #header, nav, .navbar, .nav, .site-header, [role="banner"] { background-color: ${vars.headerBg} !important; }`);
+  }
+  if (vars.footerBg) {
+    lines.push(`footer, .footer, #footer, .site-footer, [role="contentinfo"] { background-color: ${vars.footerBg} !important; }`);
+  }
+  if (vars.buttonBg || vars.buttonText) {
+    const selectors = 'button, .btn, .button, .wp-block-button__link, [role="button"], input[type="submit"], input[type="button"], a.btn, a.button, .cta, .cta-btn';
+    const rules = [];
+    if (vars.buttonBg)   rules.push(`background-color: ${vars.buttonBg} !important; background-image: none !important`);
+    if (vars.buttonText) rules.push(`color: ${vars.buttonText} !important`);
+    lines.push(`${selectors} { ${rules.join('; ')}; }`);
+  }
+
+  return lines.join('\n') + '\n';
+}
+
+// Ensure the override stylesheet <link> exists in an HTML string.
+// Returns the (possibly modified) HTML.
+function ensureThemeLink(html) {
+  if (html.includes('clonehawk-overrides.css')) return html; // already injected
+  const linkTag = '<link rel="stylesheet" href="clonehawk-overrides.css" data-ch-theme="1">';
+  // Insert right before </head> so it loads last and wins specificity
+  if (html.includes('</head>')) {
+    return html.replace('</head>', linkTag + '\n</head>');
+  }
+  if (html.includes('</HEAD>')) {
+    return html.replace('</HEAD>', linkTag + '\n</HEAD>');
+  }
+  // No </head> — prepend
+  return linkTag + '\n' + html;
+}
+
+// GET  /api/theme  — return current theme values (or defaults detected from site)
+app.get('/api/theme', (req, res) => {
+  const session = getSession(req, res);
+  if (!session?.projectPath) return res.status(400).json({ error: 'No project' });
+
+  const themePath = path.join(session.projectPath, THEME_FILE);
+  const result = { headerBg: '', footerBg: '', buttonBg: '', buttonText: '', bodyBg: '', accent: '' };
+
+  if (fs.existsSync(themePath)) {
+    // Parse existing overrides file
+    const css = fs.readFileSync(themePath, 'utf-8');
+    const varRegex = /--ch-(\w[\w-]*):\s*([^;]+)/g;
+    let m;
+    while ((m = varRegex.exec(css)) !== null) {
+      const key = m[1].replace(/-([a-z])/g, (_, c) => c.toUpperCase()); // kebab → camel
+      if (THEME_SLOTS.includes(key)) {
+        result[key] = m[2].trim();
+      }
+    }
+  }
+
+  res.json(result);
+});
+
+// POST /api/theme  — save theme values, write CSS, inject link into all HTML pages
+app.post('/api/theme', (req, res) => {
+  const session = requireSession(req, res);
+  if (!session) return;
+
+  const vars = {};
+  for (const key of THEME_SLOTS) {
+    if (req.body[key] && typeof req.body[key] === 'string') {
+      vars[key] = req.body[key].trim();
+    }
+  }
+
+  try {
+    const projectDir = session.projectPath;
+    const themePath = path.join(projectDir, THEME_FILE);
+
+    // Snapshot old theme file for undo (if it exists)
+    const undoFiles = [];
+    if (fs.existsSync(themePath)) {
+      undoFiles.push({ filePath: themePath, content: fs.readFileSync(themePath), binary: false });
+    }
+
+    // Write the override stylesheet
+    const css = buildThemeCss(vars);
+    fs.writeFileSync(themePath, css, 'utf-8');
+
+    // Inject <link> into every HTML page that doesn't already have it
+    const htmlFiles = findHtmlFiles(projectDir);
+    for (const htmlFile of htmlFiles) {
+      const fp = safePath(projectDir, htmlFile);
+      if (!fp || !fs.existsSync(fp)) continue;
+      let html = fs.readFileSync(fp, 'utf-8');
+      if (!html.includes('clonehawk-overrides.css')) {
+        // Snapshot for undo
+        undoFiles.push({ filePath: fp, content: Buffer.from(html, 'utf-8'), binary: false });
+        html = ensureThemeLink(html);
+        fs.writeFileSync(fp, html, 'utf-8');
+      }
+    }
+
+    if (undoFiles.length > 0) {
+      pushUndo(session, 'Theme color update', undoFiles);
+    }
+
+    session.scanCache = null;
+    res.json({ ok: true, slots: vars });
   } catch (e) {
     res.status(500).json({ error: e.message });
   }

@@ -943,6 +943,44 @@ label { font-size: 12px; font-weight: 500; color: var(--text-secondary); display
 .sidebar-accordion-body .qs-section-divider { margin: 10px 0; }
 .sidebar-accordion-body .qs-color-row { gap: 4px; }
 
+/* ─── Theme Colors Panel ──────────── */
+.theme-color-row {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  margin-bottom: 6px;
+}
+.theme-color-row > label {
+  font-size: 11px;
+  font-weight: 600;
+  color: var(--text-secondary);
+  width: 68px;
+  flex-shrink: 0;
+}
+.theme-color-row .qs-color-row {
+  flex: 1;
+  display: flex;
+  align-items: center;
+  gap: 6px;
+}
+.theme-color-row .qs-color-row input[type="color"] {
+  width: 26px;
+  height: 26px;
+  border: 2px solid var(--border);
+  border-radius: 4px;
+  padding: 0;
+  cursor: pointer;
+  flex-shrink: 0;
+}
+.theme-color-row .qs-color-row input[type="text"] {
+  padding: 4px 6px;
+  border: 1px solid var(--border);
+  border-radius: 4px;
+  background: var(--bg-secondary);
+  color: var(--text-primary);
+  font-family: monospace;
+}
+
 /* ─── Site Colors Squares ──────────── */
 .site-colors-row {
   display: flex;
@@ -1302,8 +1340,44 @@ label { font-size: 12px; font-weight: 500; color: var(--text-secondary); display
           <span class="icon"><svg viewBox="0 0 24 24"><path d="M3 21h18"/><path d="M3 17h18"/><rect x="3" y="3" width="18" height="14" rx="2"/></svg></span> <span>Footer</span>
         </button>
       </div>
+      <div class="nav-section" id="themeColorsSection" style="display:none;">
+        <div class="nav-section-title">🎨 Theme Colors</div>
+        <div id="themeColorsPanel" style="padding:4px 8px 8px;">
+          <div class="theme-color-row">
+            <label>Header</label>
+            <div class="qs-color-row"><input type="color" id="thHeaderBg" value="#ffffff" oninput="previewThemeColor('headerBg',this.value)" /><input type="text" id="thHeaderBgText" value="" placeholder="#ffffff" oninput="document.getElementById('thHeaderBg').value=this.value;previewThemeColor('headerBg',this.value)" style="font-size:11px;flex:1;" /></div>
+          </div>
+          <div class="theme-color-row">
+            <label>Footer</label>
+            <div class="qs-color-row"><input type="color" id="thFooterBg" value="#111111" oninput="previewThemeColor('footerBg',this.value)" /><input type="text" id="thFooterBgText" value="" placeholder="#111111" oninput="document.getElementById('thFooterBg').value=this.value;previewThemeColor('footerBg',this.value)" style="font-size:11px;flex:1;" /></div>
+          </div>
+          <div class="theme-color-row">
+            <label>Buttons</label>
+            <div class="qs-color-row"><input type="color" id="thButtonBg" value="#2563eb" oninput="previewThemeColor('buttonBg',this.value)" /><input type="text" id="thButtonBgText" value="" placeholder="#2563eb" oninput="document.getElementById('thButtonBg').value=this.value;previewThemeColor('buttonBg',this.value)" style="font-size:11px;flex:1;" /></div>
+          </div>
+          <div class="theme-color-row">
+            <label>Btn Text</label>
+            <div class="qs-color-row"><input type="color" id="thButtonText" value="#ffffff" oninput="previewThemeColor('buttonText',this.value)" /><input type="text" id="thButtonTextText" value="" placeholder="#ffffff" oninput="document.getElementById('thButtonText').value=this.value;previewThemeColor('buttonText',this.value)" style="font-size:11px;flex:1;" /></div>
+          </div>
+          <div class="theme-color-row">
+            <label>Background</label>
+            <div class="qs-color-row"><input type="color" id="thBodyBg" value="#ffffff" oninput="previewThemeColor('bodyBg',this.value)" /><input type="text" id="thBodyBgText" value="" placeholder="#ffffff" oninput="document.getElementById('thBodyBg').value=this.value;previewThemeColor('bodyBg',this.value)" style="font-size:11px;flex:1;" /></div>
+          </div>
+          <div class="theme-color-row">
+            <label>Links</label>
+            <div class="qs-color-row"><input type="color" id="thAccent" value="#2563eb" oninput="previewThemeColor('accent',this.value)" /><input type="text" id="thAccentText" value="" placeholder="#2563eb" oninput="document.getElementById('thAccent').value=this.value;previewThemeColor('accent',this.value)" style="font-size:11px;flex:1;" /></div>
+          </div>
+          <div style="display:flex;gap:6px;margin-top:8px;">
+            <button class="btn btn-primary btn-sm" onclick="saveThemeColors()" style="flex:1;">💾 Save Theme</button>
+            <button class="btn btn-secondary btn-sm" onclick="resetThemeColors()" style="flex:none;">↩</button>
+          </div>
+          <p style="font-size:10px;color:var(--text-muted);margin-top:6px;">Overrides site CSS globally. Undo-able.</p>
+        </div>
+      </div>
       <div class="nav-section" id="siteColorsSection" style="display:none;">
-        <div class="nav-section-title">Site Colors</div>
+        <div class="nav-section-title" style="cursor:pointer;" onclick="var b=document.getElementById('siteColorsRow');b.style.display=b.style.display==='none'?'':'none';this.querySelector('.qs-toggle').textContent=b.style.display==='none'?'▸':'▾'">
+          Advanced Colors <span class="qs-toggle" style="font-size:10px;margin-left:4px;">▾</span>
+        </div>
         <div class="site-colors-row" id="siteColorsRow">
           <!-- Filled dynamically -->
         </div>
@@ -1314,6 +1388,19 @@ label { font-size: 12px; font-weight: 500; color: var(--text-secondary); display
           <div class="panel-inner" id="sidebarStylesBody">
             <div class="panel-hint">Click an element to edit styles</div>
           </div>
+        </div>
+      </div>
+      <div class="nav-section" id="addBlockSection" style="display:none;">
+        <div class="nav-section-title">➕ Add Block</div>
+        <div style="padding:4px 8px 8px;display:flex;flex-wrap:wrap;gap:4px;">
+          <button class="btn btn-sm btn-secondary" onclick="insertBlock('heading')" title="Add Heading" style="font-size:11px;padding:5px 10px;">T Heading</button>
+          <button class="btn btn-sm btn-secondary" onclick="insertBlock('text')" title="Add Text" style="font-size:11px;padding:5px 10px;">¶ Text</button>
+          <button class="btn btn-sm btn-secondary" onclick="insertBlock('image')" title="Add Image" style="font-size:11px;padding:5px 10px;">🖼 Image</button>
+          <button class="btn btn-sm btn-secondary" onclick="insertBlock('button')" title="Add Button" style="font-size:11px;padding:5px 10px;">⬚ Button</button>
+          <button class="btn btn-sm btn-secondary" onclick="insertBlock('video')" title="Add Video" style="font-size:11px;padding:5px 10px;">🎬 Video</button>
+          <button class="btn btn-sm btn-secondary" onclick="insertBlock('divider')" title="Add Divider" style="font-size:11px;padding:5px 10px;">─ Divider</button>
+          <button class="btn btn-sm btn-secondary" onclick="insertBlock('spacer')" title="Add Spacer" style="font-size:11px;padding:5px 10px;">↕ Spacer</button>
+          <button class="btn btn-sm btn-secondary" onclick="insertBlock('html')" title="Add Custom HTML" style="font-size:11px;padding:5px 10px;">&lt;/&gt; HTML</button>
         </div>
       </div>
       <div class="nav-section">
@@ -1762,6 +1849,7 @@ async function loadScanAndShowEditor() {
     document.querySelectorAll('.nav-item').forEach(el => el.classList.remove('active'));
     document.querySelector('[data-view="visual"]').classList.add('active');
     switchView('visual');
+    loadThemeColors();
     loadSiteColors();
   }, 600);
 }
@@ -1769,6 +1857,159 @@ async function loadScanAndShowEditor() {
 // ═══════════════════════════════════════════
 //  SITE COLORS
 // ═══════════════════════════════════════════
+async function loadThemeColors() {
+  try {
+    const theme = await api('/api/theme');
+    const section = document.getElementById('themeColorsSection');
+    if (!section) return;
+    section.style.display = '';
+
+    // Populate inputs with saved values (or leave as placeholder defaults)
+    const slots = ['headerBg', 'footerBg', 'buttonBg', 'buttonText', 'bodyBg', 'accent'];
+    for (const slot of slots) {
+      const colorInput = document.getElementById('th' + slot.charAt(0).toUpperCase() + slot.slice(1));
+      const textInput = document.getElementById('th' + slot.charAt(0).toUpperCase() + slot.slice(1) + 'Text');
+      // Map camelCase to element IDs — the IDs follow the pattern thHeaderBg, thFooterBg, etc.
+      // Need a more reliable mapping:
+      const idMap = { headerBg: 'thHeaderBg', footerBg: 'thFooterBg', buttonBg: 'thButtonBg', buttonText: 'thButtonText', bodyBg: 'thBodyBg', accent: 'thAccent' };
+      const el = document.getElementById(idMap[slot]);
+      const elText = document.getElementById(idMap[slot] + 'Text');
+      if (el && theme[slot]) {
+        el.value = toHex(theme[slot]);
+        if (elText) elText.value = theme[slot];
+      }
+    }
+
+    // If no theme values exist yet, try to seed from site-colors detection
+    const hasAny = slots.some(s => theme[s]);
+    if (!hasAny) {
+      try {
+        const detected = await api('/api/site-colors');
+        const seedMap = { background: 'bodyBg', header: 'headerBg', footer: 'footerBg', accent: 'accent', button: 'buttonBg', text: 'buttonText' };
+        // Note: text → buttonText is a rough approximation, only if button text wasn't found
+        for (const [apiKey, slot] of Object.entries(seedMap)) {
+          if (detected[apiKey]) {
+            const idMap = { headerBg: 'thHeaderBg', footerBg: 'thFooterBg', buttonBg: 'thButtonBg', buttonText: 'thButtonText', bodyBg: 'thBodyBg', accent: 'thAccent' };
+            const el = document.getElementById(idMap[slot]);
+            const elText = document.getElementById(idMap[slot] + 'Text');
+            if (el) {
+              el.value = toHex(detected[apiKey]);
+              if (elText) elText.value = detected[apiKey];
+            }
+          }
+        }
+      } catch (_) {}
+    }
+  } catch (e) {
+    // Theme panel stays hidden
+  }
+}
+
+function previewThemeColor(slot, value) {
+  // Instant live preview by injecting/updating a <style> in the iframe
+  const iframe = document.getElementById('visualFrame');
+  if (!iframe) return;
+  try {
+    const doc = iframe.contentDocument || iframe.contentWindow.document;
+    let styleEl = doc.getElementById('ch-theme-preview');
+    if (!styleEl) {
+      styleEl = doc.createElement('style');
+      styleEl.id = 'ch-theme-preview';
+      doc.head.appendChild(styleEl);
+    }
+
+    // Build CSS from current inputs
+    const get = (id) => document.getElementById(id)?.value || '';
+    const vars = {
+      headerBg: slot === 'headerBg' ? value : get('thHeaderBgText'),
+      footerBg: slot === 'footerBg' ? value : get('thFooterBgText'),
+      buttonBg: slot === 'buttonBg' ? value : get('thButtonBgText'),
+      buttonText: slot === 'buttonText' ? value : get('thButtonTextText'),
+      bodyBg: slot === 'bodyBg' ? value : get('thBodyBgText'),
+      accent: slot === 'accent' ? value : get('thAccentText'),
+    };
+
+    let css = '';
+    if (vars.bodyBg)     css += `body { background-color: ${vars.bodyBg} !important; }\n`;
+    if (vars.accent)     css += `a, a:link, a:visited { color: ${vars.accent} !important; }\n`;
+    if (vars.headerBg)   css += `header, .header, #header, nav, .navbar, .nav, .site-header, [role="banner"] { background-color: ${vars.headerBg} !important; }\n`;
+    if (vars.footerBg)   css += `footer, .footer, #footer, .site-footer, [role="contentinfo"] { background-color: ${vars.footerBg} !important; }\n`;
+    if (vars.buttonBg || vars.buttonText) {
+      const btnSel = 'button, .btn, .button, .wp-block-button__link, [role="button"], input[type="submit"], input[type="button"], a.btn, a.button, .cta, .cta-btn';
+      let rules = '';
+      if (vars.buttonBg)   rules += `background-color: ${vars.buttonBg} !important; background-image: none !important; `;
+      if (vars.buttonText) rules += `color: ${vars.buttonText} !important; `;
+      css += `${btnSel} { ${rules}}\n`;
+    }
+    styleEl.textContent = css;
+  } catch (e) { /* cross-origin */ }
+
+  // Also update the text input next to the color picker
+  const idMap = { headerBg: 'thHeaderBg', footerBg: 'thFooterBg', buttonBg: 'thButtonBg', buttonText: 'thButtonText', bodyBg: 'thBodyBg', accent: 'thAccent' };
+  const textEl = document.getElementById(idMap[slot] + 'Text');
+  if (textEl && textEl.value !== value) textEl.value = value;
+}
+
+async function saveThemeColors() {
+  const vars = {
+    headerBg: document.getElementById('thHeaderBgText')?.value?.trim() || '',
+    footerBg: document.getElementById('thFooterBgText')?.value?.trim() || '',
+    buttonBg: document.getElementById('thButtonBgText')?.value?.trim() || '',
+    buttonText: document.getElementById('thButtonTextText')?.value?.trim() || '',
+    bodyBg: document.getElementById('thBodyBgText')?.value?.trim() || '',
+    accent: document.getElementById('thAccentText')?.value?.trim() || '',
+  };
+
+  // Only send non-empty values
+  const payload = {};
+  for (const [k, v] of Object.entries(vars)) {
+    if (v) payload[k] = v;
+  }
+
+  if (Object.keys(payload).length === 0) {
+    toast('Set at least one color', 'warning');
+    return;
+  }
+
+  try {
+    const res = await api('/api/theme', { method: 'POST', body: payload });
+    if (res.ok) {
+      toast('Theme saved! ✓');
+      // Remove the live preview style — the real CSS file now handles it
+      try {
+        const iframe = document.getElementById('visualFrame');
+        if (iframe) {
+          const doc = iframe.contentDocument || iframe.contentWindow.document;
+          const previewEl = doc.getElementById('ch-theme-preview');
+          if (previewEl) previewEl.remove();
+        }
+      } catch (_) {}
+      // Refresh scan + reload iframe to pick up the new stylesheet
+      scanData = await api('/api/scan');
+      softReloadIframe();
+    } else {
+      toast(res.error || 'Failed to save theme', 'error');
+    }
+  } catch (e) {
+    toast('Save failed: ' + e.message, 'error');
+  }
+}
+
+function resetThemeColors() {
+  // Remove the live preview style from iframe
+  try {
+    const iframe = document.getElementById('visualFrame');
+    if (iframe) {
+      const doc = iframe.contentDocument || iframe.contentWindow.document;
+      const previewEl = doc.getElementById('ch-theme-preview');
+      if (previewEl) previewEl.remove();
+    }
+  } catch (_) {}
+  // Reload from server
+  loadThemeColors();
+  softReloadIframe();
+}
+
 async function loadSiteColors() {
   try {
     // Get ALL colors used in the site, sorted by frequency
@@ -1844,6 +2085,7 @@ async function init() {
         document.querySelectorAll('.nav-item').forEach(el => el.classList.remove('active'));
         document.querySelector('[data-view="visual"]').classList.add('active');
         switchView('visual');
+        loadThemeColors();
         loadSiteColors();
         return;
       }
@@ -1899,6 +2141,10 @@ function switchView(view) {
     preview: renderPreviewView
   };
   (renderers[view] || (() => {}))();
+
+  // Show/hide Add Block section (only in visual editor)
+  const addBlockSec = document.getElementById('addBlockSection');
+  if (addBlockSec) addBlockSec.style.display = (view === 'visual') ? '' : 'none';
 }
 
 // ═══════════════════════════════════════════
@@ -2773,6 +3019,7 @@ async function saveQuickStyles() {
   if (await saveCurrentPageDOM()) {
     // Re-scan to pick up any color changes from style edits
     scanData = await api('/api/scan');
+    loadThemeColors();
     loadSiteColors();
   }
 }
@@ -4125,15 +4372,37 @@ function injectVisualOverlay(iframe) {
       '      inputType: (tag === "input" ? (target.getAttribute("type") || "text") : "")',
       '    };',
       '    if (tag === "img") {',
-      '      // Send both the raw HTML src attribute AND the browser-resolved full URL',
+      '      // Send raw HTML src, browser-resolved URL, currentSrc (actual rendered), and srcset',
       '      msg.src = target.getAttribute("src") || "";',
       '      msg.resolvedSrc = target.src || "";',
+      '      msg.currentSrc = target.currentSrc || "";',
+      '      msg.srcset = target.getAttribute("srcset") || "";',
       '      msg.alt = target.getAttribute("alt") || "";',
       '      msg.width = target.naturalWidth;',
       '      msg.height = target.naturalHeight;',
+      '      // Also check parent <picture> for <source srcset> variants',
+      '      var parentPic = target.closest ? target.closest("picture") : null;',
+      '      if (parentPic) {',
+      '        var sources = parentPic.querySelectorAll("source");',
+      '        var srcsetList = [];',
+      '        for (var si = 0; si < sources.length; si++) {',
+      '          var ss = sources[si].getAttribute("srcset") || "";',
+      '          if (ss) srcsetList.push(ss);',
+      '        }',
+      '        if (srcsetList.length > 0) msg.pictureSrcsets = srcsetList;',
+      '      }',
       '    }',
       '    if (tag === "video" || tag === "iframe") {',
       '      msg.src = target.getAttribute("src") || "";',
+      '      // Also capture <source> children for video elements',
+      '      if (tag === "video") {',
+      '        var vSources = target.querySelectorAll("source");',
+      '        var vSrcList = [];',
+      '        for (var vsi = 0; vsi < vSources.length; vsi++) {',
+      '          vSrcList.push(vSources[vsi].getAttribute("src") || "");',
+      '        }',
+      '        if (vSrcList.length > 0) msg.videoSources = vSrcList;',
+      '      }',
       '    }',
       '    if (tag === "a") {',
       '      msg.href = target.getAttribute("href") || "";',
@@ -4169,6 +4438,10 @@ function handleVisualMessage(e) {
       text: e.data.text || '',
       src: e.data.src || '',
       resolvedSrc: e.data.resolvedSrc || '',
+      currentSrc: e.data.currentSrc || '',
+      srcset: e.data.srcset || '',
+      pictureSrcsets: e.data.pictureSrcsets || null,
+      videoSources: e.data.videoSources || null,
       href: e.data.href || '',
       alt: e.data.alt || '',
       width: e.data.width || 0,
@@ -4219,7 +4492,7 @@ async function saveCurrentPageDOM() {
   try {
     const doc = iframe.contentDocument || iframe.contentWindow.document;
     // Remove CloneHawk overlay elements before serializing
-    const toRemove = doc.querySelectorAll('#clonehawk-overlay-css, #clonehawk-overlay-js, #clonehawk-moveable-js, #clonehawk-selecto-js, .ch-label, .ch-toolbar, .ch-edit-label, .ch-drop-indicator, .ch-drag-ghost, .ch-move-banner, .ch-resize-handle, .ch-resize-info, .moveable-control-box, .moveable-control, .selecto-selection, [class*="moveable-"]');
+    const toRemove = doc.querySelectorAll('#clonehawk-overlay-css, #clonehawk-overlay-js, #clonehawk-moveable-js, #clonehawk-selecto-js, #ch-theme-preview, .ch-label, .ch-toolbar, .ch-edit-label, .ch-drop-indicator, .ch-drag-ghost, .ch-move-banner, .ch-resize-handle, .ch-resize-info, .moveable-control-box, .moveable-control, .selecto-selection, [class*="moveable-"]');
     toRemove.forEach(el => el.remove());
     // Clean up any CloneHawk classes/attributes left on elements before serializing
     doc.querySelectorAll('.ch-selected, .ch-hover, .ch-editing, .ch-dragging, .ch-save-flash, .ch-move-target, .ch-resizing, .ch-multi-selected, .moveable-target').forEach(el => {
@@ -4411,20 +4684,93 @@ function handleToolbarAction(action) {
       break;
 
     case 'edit-embed':
-      // Show embed/iframe editing UI
+      // Show unified video/embed swap dialog
       if (visualSelectedEl && (visualSelectedEl.tag === 'iframe' || visualSelectedEl.tag === 'video' || visualSelectedEl.tag === 'embed')) {
+        const isIframe = visualSelectedEl.tag === 'iframe';
+        const isVideo = visualSelectedEl.tag === 'video';
+        const hasSources = visualSelectedEl.videoSources && visualSelectedEl.videoSources.length > 0;
+        const currentUrl = visualSelectedEl.src || '';
+
+        // Detect YouTube/Vimeo
+        const isYT = currentUrl.includes('youtube.com') || currentUrl.includes('youtu.be');
+        const isVimeo = currentUrl.includes('vimeo.com');
+        const embedType = isYT ? '🎬 YouTube' : isVimeo ? '🎬 Vimeo' : isIframe ? '▣ Embed' : '🎬 Video';
+
+        let sourcesHtml = '';
+        if (hasSources) {
+          sourcesHtml = `
+            <div class="form-group" style="margin-top:8px;">
+              <label style="font-size:11px;color:var(--text-muted);">Video Sources (${visualSelectedEl.videoSources.length})</label>
+              ${visualSelectedEl.videoSources.map((s, i) => `
+                <div style="display:flex;gap:6px;margin-top:4px;align-items:center;">
+                  <span style="font-size:10px;color:var(--text-muted);min-width:12px;">${i+1}</span>
+                  <input type="text" class="embed-source-input" value="${escAttr(s)}" placeholder="Video URL..." style="font-size:11px;flex:1;" />
+                </div>
+              `).join('')}
+              <p style="font-size:10px;color:var(--text-muted);margin-top:6px;">All &lt;source&gt; elements will be updated</p>
+            </div>`;
+        }
+
         openModal(`
-          <div class="modal-header"><h3>✏️ Edit Embed</h3><button class="modal-close" onclick="closeModal()">✕</button></div>
+          <div class="modal-header"><h3>🔄 Swap ${embedType}</h3><button class="modal-close" onclick="closeModal()">✕</button></div>
           <div class="modal-body">
-            <div class="form-group"><label>Source URL</label><input type="text" id="embedSrc" value="${escAttr(visualSelectedEl.src || '')}" placeholder="https://..." /></div>
-            <div class="form-group"><label>Width</label><input type="text" id="embedW" value="" placeholder="e.g. 560px or 100%" /></div>
-            <div class="form-group"><label>Height</label><input type="text" id="embedH" value="" placeholder="e.g. 315px" /></div>
+            <div class="form-group">
+              <label>Source URL</label>
+              <input type="text" id="embedSrc" value="${escAttr(currentUrl)}" placeholder="${isIframe ? 'YouTube/Vimeo URL or embed URL...' : 'Direct video URL (mp4, webm)...'}" />
+              ${isIframe ? '<p style="font-size:10px;color:var(--text-muted);margin-top:4px;">Paste a YouTube/Vimeo page URL — it will be auto-converted to an embed URL</p>' : ''}
+            </div>
+            ${sourcesHtml}
+            ${!isIframe ? `
+            <div class="form-group" style="margin-top:12px;">
+              <label>Or Upload Video File</label>
+              <input type="file" id="embedVideoFile" accept="video/mp4,video/webm,video/ogg,.mp4,.webm,.ogg" style="font-size:12px;" />
+              <p style="font-size:10px;color:var(--text-muted);margin-top:4px;">Max 20MB · MP4, WebM, or OGG</p>
+            </div>` : ''}
+            <div style="display:flex;gap:12px;margin-top:12px;">
+              <div class="form-group" style="flex:1;">
+                <label>Width</label>
+                <input type="text" id="embedW" value="" placeholder="e.g. 560px or 100%" />
+              </div>
+              <div class="form-group" style="flex:1;">
+                <label>Height</label>
+                <input type="text" id="embedH" value="" placeholder="e.g. 315px" />
+              </div>
+            </div>
+            ${isVideo ? `
+            <div style="display:flex;gap:16px;margin-top:8px;">
+              <label style="font-size:12px;display:flex;align-items:center;gap:4px;cursor:pointer;">
+                <input type="checkbox" id="embedAutoplay" /> Autoplay
+              </label>
+              <label style="font-size:12px;display:flex;align-items:center;gap:4px;cursor:pointer;">
+                <input type="checkbox" id="embedLoop" /> Loop
+              </label>
+              <label style="font-size:12px;display:flex;align-items:center;gap:4px;cursor:pointer;">
+                <input type="checkbox" id="embedMuted" checked /> Muted
+              </label>
+              <label style="font-size:12px;display:flex;align-items:center;gap:4px;cursor:pointer;">
+                <input type="checkbox" id="embedControls" checked /> Controls
+              </label>
+            </div>` : ''}
           </div>
           <div class="modal-footer">
             <button class="btn btn-secondary" onclick="closeModal()">Cancel</button>
-            <button class="btn btn-primary" onclick="saveEmbed()">Save</button>
+            <button class="btn btn-primary" onclick="saveSwapVideo()">💾 Save</button>
           </div>
         `);
+
+        // Pre-check video attributes from iframe element
+        if (isVideo) {
+          try {
+            const iframeEl = document.getElementById('visualFrame');
+            const el = iframeEl?.contentWindow?._chSelectedEl;
+            if (el) {
+              if (el.autoplay) document.getElementById('embedAutoplay').checked = true;
+              if (el.loop) document.getElementById('embedLoop').checked = true;
+              if (el.muted) document.getElementById('embedMuted').checked = true;
+              if (el.controls) document.getElementById('embedControls').checked = true;
+            }
+          } catch(_) {}
+        }
       }
       break;
 
@@ -4435,24 +4781,116 @@ function handleToolbarAction(action) {
   }
 }
 
-async function saveEmbed() {
+// Convert YouTube/Vimeo page URLs to embed URLs
+function toEmbedUrl(url) {
+  if (!url) return url;
+  // YouTube: https://www.youtube.com/watch?v=ID → https://www.youtube.com/embed/ID
+  const ytMatch = url.match(/(?:youtube\.com\/watch\?v=|youtu\.be\/)([a-zA-Z0-9_-]+)/);
+  if (ytMatch) return 'https://www.youtube.com/embed/' + ytMatch[1];
+  // Vimeo: https://vimeo.com/ID → https://player.vimeo.com/video/ID
+  const vimeoMatch = url.match(/vimeo\.com\/(\d+)/);
+  if (vimeoMatch) return 'https://player.vimeo.com/video/' + vimeoMatch[1];
+  return url;
+}
+
+async function saveSwapVideo() {
   if (!visualSelectedEl) return;
-  const iframe = document.getElementById('visualFrame');
-  if (!iframe || !iframe.contentWindow || !iframe.contentWindow._chSelectedEl) return;
-  const el = iframe.contentWindow._chSelectedEl;
-  const newSrc = document.getElementById('embedSrc')?.value;
-  const newW = document.getElementById('embedW')?.value;
-  const newH = document.getElementById('embedH')?.value;
-  if (newSrc) el.setAttribute('src', newSrc);
+  const iframeEl = document.getElementById('visualFrame');
+  if (!iframeEl || !iframeEl.contentWindow || !iframeEl.contentWindow._chSelectedEl) return;
+  const el = iframeEl.contentWindow._chSelectedEl;
+  const tag = visualSelectedEl.tag;
+
+  // Check for file upload first (video elements only)
+  const fileInput = document.getElementById('embedVideoFile');
+  if (fileInput && fileInput.files && fileInput.files[0]) {
+    const file = fileInput.files[0];
+    if (file.size > 20 * 1024 * 1024) {
+      toast('File too large — max 20MB', 'error');
+      return;
+    }
+    // Upload the video file
+    const fd = new FormData();
+    fd.append('image', file); // reuse same upload endpoint (it handles any file)
+    fd.append('targetPath', 'videos/' + Date.now() + '-' + file.name);
+    try {
+      toast('Uploading video...', 'info');
+      const res = await fetch('/api/image/upload', { method: 'POST', body: fd, credentials: 'same-origin' });
+      const d = await res.json();
+      if (d.ok) {
+        el.setAttribute('src', d.path);
+        // Also update all <source> children
+        const sources = el.querySelectorAll('source');
+        sources.forEach(s => s.setAttribute('src', d.path));
+        // Remove poster if replacing video entirely
+        el.removeAttribute('poster');
+        visualSelectedEl.src = d.path;
+      } else {
+        toast(d.error || 'Upload failed', 'error');
+        return;
+      }
+    } catch (err) {
+      toast('Upload failed: ' + err.message, 'error');
+      return;
+    }
+  } else {
+    // URL-based swap
+    let newSrc = document.getElementById('embedSrc')?.value?.trim();
+    if (!newSrc) { toast('Enter a URL or upload a file', 'info'); return; }
+
+    // Auto-convert YouTube/Vimeo URLs for iframes
+    if (tag === 'iframe') {
+      newSrc = toEmbedUrl(newSrc);
+    }
+
+    el.setAttribute('src', newSrc);
+    visualSelectedEl.src = newSrc;
+
+    // Update <source> children too (for <video> with <source> tags)
+    if (tag === 'video') {
+      const sourceInputs = document.querySelectorAll('.embed-source-input');
+      const sources = el.querySelectorAll('source');
+      sourceInputs.forEach((input, i) => {
+        const val = input.value.trim();
+        if (val && sources[i]) {
+          sources[i].setAttribute('src', val);
+        }
+      });
+      // If no <source> tags but we have a URL, set directly on <video>
+      if (sources.length === 0) {
+        el.setAttribute('src', newSrc);
+      }
+    }
+  }
+
+  // Apply dimensions
+  const newW = document.getElementById('embedW')?.value?.trim();
+  const newH = document.getElementById('embedH')?.value?.trim();
   if (newW) el.style.width = newW;
   if (newH) el.style.height = newH;
+
+  // Apply video attributes
+  if (tag === 'video') {
+    const autoplay = document.getElementById('embedAutoplay')?.checked;
+    const loop = document.getElementById('embedLoop')?.checked;
+    const muted = document.getElementById('embedMuted')?.checked;
+    const controls = document.getElementById('embedControls')?.checked;
+    if (autoplay) { el.setAttribute('autoplay', ''); } else { el.removeAttribute('autoplay'); }
+    if (loop) { el.setAttribute('loop', ''); } else { el.removeAttribute('loop'); }
+    if (muted) { el.setAttribute('muted', ''); } else { el.removeAttribute('muted'); }
+    if (controls) { el.setAttribute('controls', ''); } else { el.removeAttribute('controls'); }
+  }
+
   closeModal();
   if (await saveCurrentPageDOM()) {
-    toast('Embed updated ✓');
+    toast('Video updated ✓');
     scanData = await api('/api/scan');
     softReloadIframe();
+    if (visualSelectedEl) renderStylePanel();
   }
 }
+
+// Legacy compat — old embed save
+async function saveEmbed() { return saveSwapVideo(); }
 
 async function saveVideoSrc() {
   if (!visualSelectedEl) return;
@@ -4462,14 +4900,334 @@ async function saveVideoSrc() {
   const iframe = document.getElementById('visualFrame');
   if (!iframe || !iframe.contentWindow || !iframe.contentWindow._chSelectedEl) return;
   const el = iframe.contentWindow._chSelectedEl;
-  el.setAttribute('src', newSrc);
-  visualSelectedEl.src = newSrc;
+  // Auto-convert YT/Vimeo for iframes
+  const finalSrc = el.tagName.toLowerCase() === 'iframe' ? toEmbedUrl(newSrc) : newSrc;
+  el.setAttribute('src', finalSrc);
+  // Also update <source> children
+  if (el.tagName.toLowerCase() === 'video') {
+    el.querySelectorAll('source').forEach(s => s.setAttribute('src', finalSrc));
+  }
+  visualSelectedEl.src = finalSrc;
   if (await saveCurrentPageDOM()) {
     toast('Video URL updated ✓');
     scanData = await api('/api/scan');
     softReloadIframe();
     if (visualSelectedEl) renderStylePanel();
   }
+}
+
+// ═══════════════════════════════════════════
+//  ADD BLOCK — Insert new elements into the page
+// ═══════════════════════════════════════════
+
+const BLOCK_TEMPLATES = {
+  heading: {
+    html: '<h2 data-ch-added="1" style="font-size:28px;font-weight:700;margin:24px 0 12px;padding:0 16px;">New Heading</h2>',
+    name: 'Heading'
+  },
+  text: {
+    html: '<p data-ch-added="1" style="font-size:16px;line-height:1.6;margin:12px 0;padding:0 16px;color:inherit;">Click to edit this text block. You can write anything here — a paragraph, description, or any content you need.</p>',
+    name: 'Text Block'
+  },
+  image: {
+    html: '<div data-ch-added="1" style="margin:24px auto;text-align:center;padding:0 16px;"><img src="data:image/svg+xml,%3Csvg xmlns=\'http://www.w3.org/2000/svg\' width=\'600\' height=\'400\' fill=\'%23ddd\'%3E%3Crect width=\'600\' height=\'400\' fill=\'%23f0f0f0\'/%3E%3Ctext x=\'50%25\' y=\'50%25\' dominant-baseline=\'middle\' text-anchor=\'middle\' font-family=\'sans-serif\' font-size=\'24\' fill=\'%23999\'%3EClick to replace image%3C/text%3E%3C/svg%3E" alt="Placeholder image" style="max-width:100%;height:auto;border-radius:8px;" /></div>',
+    name: 'Image'
+  },
+  button: {
+    html: '<div data-ch-added="1" style="margin:20px 0;padding:0 16px;"><a href="#" style="display:inline-block;padding:12px 32px;background:#2563eb;color:#fff;text-decoration:none;border-radius:6px;font-weight:600;font-size:16px;cursor:pointer;">Click Here</a></div>',
+    name: 'Button'
+  },
+  video: {
+    html: '<div data-ch-added="1" style="margin:24px auto;padding:0 16px;max-width:640px;"><div style="position:relative;padding-bottom:56.25%;height:0;overflow:hidden;border-radius:8px;background:#000;"><iframe src="https://www.youtube.com/embed/dQw4w9WgXcQ" style="position:absolute;top:0;left:0;width:100%;height:100%;border:none;" allowfullscreen></iframe></div><p style="font-size:12px;color:#999;margin-top:8px;text-align:center;">Click the video → Swap URL to change</p></div>',
+    name: 'Video Embed'
+  },
+  divider: {
+    html: '<hr data-ch-added="1" style="border:none;border-top:2px solid #e5e7eb;margin:32px 16px;" />',
+    name: 'Divider'
+  },
+  spacer: {
+    html: '<div data-ch-added="1" style="height:60px;"></div>',
+    name: 'Spacer'
+  },
+  html: null // Handled via modal
+};
+
+function insertBlock(type) {
+  if (type === 'html') {
+    openModal(`
+      <div class="modal-header"><h3>🔧 Custom HTML</h3><button class="modal-close" onclick="closeModal()">✕</button></div>
+      <div class="modal-body">
+        <div class="form-group">
+          <label>HTML Code</label>
+          <textarea id="customHtmlInput" rows="8" placeholder="<div>Your custom HTML here...</div>" style="font-family:monospace;font-size:12px;"></textarea>
+        </div>
+      </div>
+      <div class="modal-footer">
+        <button class="btn btn-secondary" onclick="closeModal()">Cancel</button>
+        <button class="btn btn-primary" onclick="insertCustomHtml()">Insert</button>
+      </div>
+    `);
+    return;
+  }
+
+  const template = BLOCK_TEMPLATES[type];
+  if (!template) { toast('Unknown block type', 'error'); return; }
+
+  doInsertHtml(template.html, template.name);
+}
+
+function insertCustomHtml() {
+  const html = document.getElementById('customHtmlInput')?.value?.trim();
+  if (!html) { toast('Enter some HTML', 'info'); return; }
+  closeModal();
+  const wrapped = '<div data-ch-added="1">' + html + '</div>';
+  doInsertHtml(wrapped, 'Custom HTML');
+}
+
+async function doInsertHtml(htmlSnippet, blockName) {
+  const iframe = document.getElementById('visualFrame');
+  if (!iframe || !iframe.contentWindow) { toast('No preview loaded', 'error'); return; }
+
+  try {
+    const doc = iframe.contentDocument || iframe.contentWindow.document;
+    const win = iframe.contentWindow;
+
+    // Determine insertion point
+    let insertTarget = null;
+    let insertMode = 'afterend'; // default: after selected element
+
+    if (win._chSelectedEl && win._chSelectedEl !== doc.body) {
+      insertTarget = win._chSelectedEl;
+      // If the selected element is a container, insert inside as last child
+      const containerTags = ['SECTION', 'HEADER', 'FOOTER', 'MAIN', 'ARTICLE', 'ASIDE', 'NAV', 'DIV'];
+      if (containerTags.includes(insertTarget.tagName)) {
+        insertMode = 'beforeend';
+      }
+    } else {
+      // No selection — find main content area and append
+      insertTarget = doc.querySelector('main') || doc.querySelector('[role="main"]') ||
+                     doc.querySelector('.content') || doc.querySelector('#content') ||
+                     doc.querySelector('article') || doc.body;
+      insertMode = 'beforeend';
+    }
+
+    insertTarget.insertAdjacentHTML(insertMode, htmlSnippet);
+    toast(blockName + ' added ✓');
+
+    // Scroll to the new element and highlight briefly
+    const added = doc.querySelector('[data-ch-added="1"]:last-of-type') ||
+                  insertTarget.lastElementChild;
+    if (added) {
+      added.scrollIntoView({ behavior: 'smooth', block: 'center' });
+      added.style.outline = '2px solid #22c55e';
+      added.style.outlineOffset = '2px';
+      setTimeout(() => {
+        added.style.outline = '';
+        added.style.outlineOffset = '';
+      }, 1500);
+    }
+
+    // Save the page DOM
+    if (await saveCurrentPageDOM()) {
+      scanData = await api('/api/scan');
+      softReloadIframe();
+    }
+  } catch (e) {
+    console.error('[CloneHawk] Insert block error:', e);
+    toast('Failed to insert block: ' + e.message, 'error');
+  }
+}
+
+// ═══════════════════════════════════════════
+//  ADD BLOCK — Insert new elements into the page
+// ═══════════════════════════════════════════
+
+const BLOCK_TEMPLATES = {
+  heading: '<h2 data-ch-added="1" style="padding:16px 24px;font-size:28px;font-weight:700;color:#1a1f36;">New Heading</h2>',
+  text: '<p data-ch-added="1" style="padding:12px 24px;font-size:16px;line-height:1.6;color:#374151;">Add your text here. Double-click to edit.</p>',
+  image: '<img data-ch-added="1" src="data:image/svg+xml,%3Csvg xmlns=\'http://www.w3.org/2000/svg\' width=\'800\' height=\'400\' fill=\'%23e5e7eb\'%3E%3Crect width=\'800\' height=\'400\'/%3E%3Ctext x=\'50%25\' y=\'50%25\' dominant-baseline=\'middle\' text-anchor=\'middle\' font-family=\'sans-serif\' font-size=\'24\' fill=\'%239ca3af\'%3EClick to replace image%3C/text%3E%3C/svg%3E" alt="Placeholder image" style="max-width:100%;height:auto;display:block;margin:16px auto;" />',
+  button: '<a data-ch-added="1" href="#" style="display:inline-block;padding:14px 32px;margin:16px 24px;background:#5b4bd5;color:#fff;font-size:16px;font-weight:600;text-decoration:none;border-radius:8px;text-align:center;cursor:pointer;">Click Me</a>',
+  video: '<video data-ch-added="1" controls muted style="max-width:100%;margin:16px auto;display:block;background:#000;min-height:200px;" poster=""><source src="" type="video/mp4"></video>',
+  divider: '<hr data-ch-added="1" style="border:none;border-top:2px solid #e5e7eb;margin:24px;" />',
+  spacer: '<div data-ch-added="1" style="height:48px;"></div>',
+  html: null // Prompts for custom HTML
+};
+
+function insertBlock(type) {
+  const iframe = document.getElementById('visualFrame');
+  if (!iframe) { toast('No page loaded', 'error'); return; }
+
+  if (type === 'html') {
+    openModal(`
+      <div class="modal-header"><h3>&lt;/&gt; Custom HTML</h3><button class="modal-close" onclick="closeModal()">✕</button></div>
+      <div class="modal-body">
+        <div class="form-group">
+          <label>HTML Code</label>
+          <textarea id="customHtmlInput" rows="8" placeholder='<div style="padding:20px;">Your custom HTML...</div>' style="font-family:monospace;font-size:12px;"></textarea>
+        </div>
+      </div>
+      <div class="modal-footer">
+        <button class="btn btn-secondary" onclick="closeModal()">Cancel</button>
+        <button class="btn btn-primary" onclick="doInsertCustomHtml()">Insert</button>
+      </div>
+    `);
+    return;
+  }
+
+  if (type === 'image') {
+    // For images, let user pick a file first, upload it, then insert
+    const input = document.createElement('input');
+    input.type = 'file';
+    input.accept = 'image/*';
+    input.onchange = async (e) => {
+      const file = e.target.files[0];
+      if (!file) return;
+      const fd = new FormData();
+      fd.append('image', file);
+      fd.append('targetPath', 'images/added-' + Date.now() + '-' + file.name);
+      try {
+        toast('Uploading...', 'info');
+        const res = await fetch('/api/image/upload', { method: 'POST', body: fd, credentials: 'same-origin' });
+        const d = await res.json();
+        if (d.ok) {
+          const imgHtml = '<img data-ch-added="1" src="' + d.path + '" alt="' + file.name.replace(/\.[^.]+$/, '') + '" style="max-width:100%;height:auto;display:block;margin:16px auto;" />';
+          doInsertHtml(imgHtml);
+        } else {
+          // Fallback: insert placeholder
+          toast('Upload failed — inserting placeholder', 'warning');
+          doInsertHtml(BLOCK_TEMPLATES.image);
+        }
+      } catch (err) {
+        toast('Upload error', 'error');
+        doInsertHtml(BLOCK_TEMPLATES.image);
+      }
+    };
+    input.click();
+    return;
+  }
+
+  if (type === 'video') {
+    // Show a quick URL prompt for videos
+    openModal(`
+      <div class="modal-header"><h3>🎬 Add Video</h3><button class="modal-close" onclick="closeModal()">✕</button></div>
+      <div class="modal-body">
+        <div class="form-group">
+          <label>Video URL</label>
+          <input type="text" id="addVideoUrl" placeholder="YouTube URL, Vimeo URL, or direct .mp4 link" />
+          <p style="font-size:10px;color:var(--text-muted);margin-top:4px;">YouTube/Vimeo URLs auto-convert to embeds</p>
+        </div>
+        <div class="form-group">
+          <label>Or Upload</label>
+          <input type="file" id="addVideoFile" accept="video/mp4,video/webm,.mp4,.webm" style="font-size:12px;" />
+        </div>
+      </div>
+      <div class="modal-footer">
+        <button class="btn btn-secondary" onclick="closeModal()">Cancel</button>
+        <button class="btn btn-primary" onclick="doInsertVideo()">Insert</button>
+      </div>
+    `);
+    return;
+  }
+
+  const template = BLOCK_TEMPLATES[type];
+  if (!template) { toast('Unknown block type', 'error'); return; }
+  doInsertHtml(template);
+}
+
+function doInsertHtml(html) {
+  const iframe = document.getElementById('visualFrame');
+  if (!iframe) return;
+  try {
+    const doc = iframe.contentDocument || iframe.contentWindow.document;
+    const win = iframe.contentWindow;
+
+    // Insert after the currently selected element, or at end of body
+    let target = win._chSelectedEl;
+    const temp = doc.createElement('div');
+    temp.innerHTML = html;
+    const newEl = temp.firstElementChild;
+    if (!newEl) return;
+
+    if (target && target.parentElement) {
+      target.parentElement.insertBefore(newEl, target.nextSibling);
+    } else {
+      // No selection — append to body (before scripts)
+      const scripts = doc.querySelectorAll('body > script');
+      if (scripts.length > 0) {
+        doc.body.insertBefore(newEl, scripts[0]);
+      } else {
+        doc.body.appendChild(newEl);
+      }
+    }
+
+    // Flash green to indicate success
+    newEl.style.transition = 'outline 0.3s ease';
+    newEl.style.outline = '3px solid rgba(34, 197, 94, 0.8)';
+    setTimeout(() => {
+      newEl.style.outline = '';
+      newEl.style.transition = '';
+    }, 1500);
+
+    // Save and notify
+    saveCurrentPageDOM().then(() => {
+      toast('Block added ✓');
+      scanData = api('/api/scan').then(d => { scanData = d; });
+    });
+  } catch (e) {
+    toast('Failed to insert: ' + e.message, 'error');
+  }
+}
+
+function doInsertCustomHtml() {
+  const html = document.getElementById('customHtmlInput')?.value?.trim();
+  if (!html) { toast('Enter some HTML', 'info'); return; }
+  closeModal();
+  doInsertHtml(html);
+}
+
+async function doInsertVideo() {
+  const url = document.getElementById('addVideoUrl')?.value?.trim();
+  const fileInput = document.getElementById('addVideoFile');
+  const file = fileInput?.files?.[0];
+
+  if (file) {
+    // Upload video file
+    if (file.size > 20 * 1024 * 1024) { toast('Max 20MB', 'error'); return; }
+    const fd = new FormData();
+    fd.append('image', file);
+    fd.append('targetPath', 'videos/added-' + Date.now() + '-' + file.name);
+    try {
+      toast('Uploading...', 'info');
+      const res = await fetch('/api/image/upload', { method: 'POST', body: fd, credentials: 'same-origin' });
+      const d = await res.json();
+      if (d.ok) {
+        closeModal();
+        doInsertHtml('<video data-ch-added="1" controls muted style="max-width:100%;margin:16px auto;display:block;" src="' + d.path + '"></video>');
+        return;
+      }
+      toast(d.error || 'Upload failed', 'error');
+    } catch (err) {
+      toast('Upload failed', 'error');
+    }
+    return;
+  }
+
+  if (url) {
+    closeModal();
+    // Detect YouTube/Vimeo → use iframe embed
+    const isYT = url.includes('youtube.com') || url.includes('youtu.be');
+    const isVimeo = url.includes('vimeo.com');
+    if (isYT || isVimeo) {
+      const embedUrl = toEmbedUrl(url);
+      doInsertHtml('<iframe data-ch-added="1" src="' + embedUrl + '" width="560" height="315" frameborder="0" allow="autoplay; encrypted-media" allowfullscreen style="max-width:100%;margin:16px auto;display:block;"></iframe>');
+    } else {
+      // Direct video URL
+      doInsertHtml('<video data-ch-added="1" controls muted style="max-width:100%;margin:16px auto;display:block;" src="' + url + '"></video>');
+    }
+    return;
+  }
+
+  toast('Enter a URL or upload a file', 'info');
 }
 
 function showAiRewritePanel() {
@@ -5034,6 +5792,7 @@ async function closeAiTransformAndRefresh() {
   closeAiTransform();
   toast('Site transformed! Review your changes.', 'success');
   scanData = await api('/api/scan');
+  loadThemeColors();
   loadSiteColors();
   softReloadIframe();
   updateUndoButtons();
@@ -5255,10 +6014,27 @@ function resolveImagePath(src) {
     return s;
   }
 
-  // Try both the raw src AND the browser-resolved src
+  // Try currentSrc first (what the browser is actually rendering), then resolvedSrc, then raw src
   const candidates = [src];
-  if (visualSelectedEl && visualSelectedEl.resolvedSrc && visualSelectedEl.resolvedSrc !== src) {
-    candidates.push(visualSelectedEl.resolvedSrc);
+  if (visualSelectedEl) {
+    if (visualSelectedEl.currentSrc && visualSelectedEl.currentSrc !== src) {
+      candidates.unshift(visualSelectedEl.currentSrc); // highest priority
+    }
+    if (visualSelectedEl.resolvedSrc && visualSelectedEl.resolvedSrc !== src) {
+      candidates.push(visualSelectedEl.resolvedSrc);
+    }
+    // Also try srcset candidates (the first URL from each srcset entry)
+    if (visualSelectedEl.srcset) {
+      const srcsetEntries = visualSelectedEl.srcset.split(',').map(s => s.trim().split(/\s+/)[0]).filter(Boolean);
+      srcsetEntries.forEach(s => { if (!candidates.includes(s)) candidates.push(s); });
+    }
+    // And <picture> source srcsets
+    if (visualSelectedEl.pictureSrcsets) {
+      visualSelectedEl.pictureSrcsets.forEach(ss => {
+        const entries = ss.split(',').map(s => s.trim().split(/\s+/)[0]).filter(Boolean);
+        entries.forEach(s => { if (!candidates.includes(s)) candidates.push(s); });
+      });
+    }
   }
 
   for (const candidate of candidates) {
@@ -5312,12 +6088,12 @@ function visualReplaceImage() {
     toast('No image selected', 'error');
     return;
   }
-  console.log('[CloneHawk] Replace image — raw src:', visualSelectedEl.src, '| resolvedSrc:', visualSelectedEl.resolvedSrc, '| page:', visualSelectedEl.page);
+  console.log('[CloneHawk] Replace image — raw src:', visualSelectedEl.src, '| resolvedSrc:', visualSelectedEl.resolvedSrc, '| currentSrc:', visualSelectedEl.currentSrc, '| srcset:', visualSelectedEl.srcset, '| page:', visualSelectedEl.page);
   imageReplaceTarget = resolveImagePath(visualSelectedEl.src);
   console.log('[CloneHawk] Replace image — resolved target:', imageReplaceTarget, '| available images:', (scanData.images || []).map(i => i.path).slice(0, 15));
 
   if (!imageReplaceTarget) {
-    toast('Could not resolve image path', 'error');
+    toast('Could not resolve image path — check console for details', 'error');
     return;
   }
 
@@ -5331,15 +6107,43 @@ function visualReplaceImage() {
     const fd = new FormData();
     fd.append('image', file);
     fd.append('targetPath', imageReplaceTarget);
+    // Also send currentSrc/resolvedSrc as hints for the server's fallback resolution
+    if (visualSelectedEl.currentSrc) fd.append('currentSrc', visualSelectedEl.currentSrc);
+    if (visualSelectedEl.resolvedSrc) fd.append('resolvedSrc', visualSelectedEl.resolvedSrc);
     console.log('[CloneHawk] Uploading replacement:', file.name, '→', imageReplaceTarget);
     try {
-      toast('Uploading...', 'info');
+      toast('Replacing "' + imageReplaceTarget.split('/').pop() + '"...', 'info');
       const res = await fetch('/api/image/replace', { method: 'POST', body: fd, credentials: 'same-origin' });
       const d = await res.json();
       console.log('[CloneHawk] Replace response:', d);
       if (d.ok) {
         toast('Image replaced! ✓');
         scanData = await api('/api/scan');
+
+        // Also replace any srcset/picture source variants that point to the same or similar filename
+        // This handles responsive images where multiple sizes exist
+        if (visualSelectedEl.srcset || visualSelectedEl.pictureSrcsets) {
+          const baseName = imageReplaceTarget.split('/').pop().replace(/\.[^.]+$/, ''); // e.g. "logo" from "images/logo.png"
+          const relatedImages = (scanData.images || []).filter(img => {
+            const imgBase = img.name.replace(/\.[^.]+$/, '');
+            // Match files like logo-2x.png, logo-300w.png, logo@2x.webp etc.
+            return imgBase.startsWith(baseName) && img.path !== imageReplaceTarget;
+          });
+          if (relatedImages.length > 0) {
+            console.log('[CloneHawk] Also replacing', relatedImages.length, 'responsive variants:', relatedImages.map(i => i.path));
+            // Replace variants in parallel (best effort)
+            for (const variant of relatedImages.slice(0, 5)) { // cap at 5 variants
+              try {
+                const vfd = new FormData();
+                vfd.append('image', file);
+                vfd.append('targetPath', variant.path);
+                await fetch('/api/image/replace', { method: 'POST', body: vfd, credentials: 'same-origin' });
+              } catch (_) {}
+            }
+            if (relatedImages.length > 0) scanData = await api('/api/scan');
+          }
+        }
+
         // Force-reload the iframe page to show the new image.
         // We do a HARD iframe reload (not soft) because the browser caches images
         // at the same URL. The server injects cache-bust params on DOMContentLoaded
@@ -5354,7 +6158,12 @@ function visualReplaceImage() {
         setTimeout(() => renderVisualPanel(), 500);
       } else {
         console.error('[CloneHawk] Replace FAILED:', d);
-        toast((d.error || 'Failed to replace image') + (d.available ? ' (found: ' + d.available.slice(0,3).join(', ') + ')' : ''), 'error');
+        // Show a more helpful error with the resolved path for debugging
+        const errMsg = d.error || 'Failed to replace image';
+        const hint = d.available ? '\n\nAvailable: ' + d.available.slice(0,5).join(', ') : '';
+        const pathHint = '\n\nTried: ' + imageReplaceTarget;
+        toast(errMsg + hint, 'error');
+        console.log('[CloneHawk] Debug — tried path:', imageReplaceTarget, '| server had:', d.available?.slice(0, 10));
       }
     } catch (err) {
       console.error('[CloneHawk] Replace error:', err);
@@ -5657,6 +6466,7 @@ async function doColorReplace(old) {
     closeModal();
     scanData = await api('/api/scan');
     renderColorsView();
+    loadThemeColors();
     loadSiteColors();
     // Don't soft reload — instant DOM patch already reflects change, files are written
     if (visualSelectedEl) renderStylePanel();
@@ -6348,20 +7158,6 @@ document.addEventListener('keydown', (e) => {
 // ═══════════════════════════════════════════
 function esc(s) { const d = document.createElement('div'); d.textContent = s; return d.innerHTML; }
 function escAttr(s) { return (s||'').replace(/&/g,'&amp;').replace(/"/g,'&quot;').replace(/'/g,'&#39;').replace(/</g,'&lt;'); }
-function formatBytes(b) { if (b<1024) return b+' B'; if (b<1048576) return (b/1024).toFixed(1)+' KB'; return (b/1048576).toFixed(1)+' MB'; }
-function toHex(c) {
-  if (c.startsWith('#')) { const h=c.replace('#',''); return h.length===3 ? '#'+h.split('').map(x=>x+x).join('') : '#'+h.substring(0,6); }
-  const m = c.match(/rgba?\((\d+),\s*(\d+),\s*(\d+)/);
-  return m ? '#'+[m[1],m[2],m[3]].map(x=>parseInt(x).toString(16).padStart(2,'0')).join('') : '#000000';
-}
-
-// ═══════════════════════════════════════════
-//  START
-// ═══════════════════════════════════════════
-init();
-</script>
-</body>
-</html>quot;').replace(/'/g,'&#39;').replace(/</g,'&lt;'); }
 function formatBytes(b) { if (b<1024) return b+' B'; if (b<1048576) return (b/1024).toFixed(1)+' KB'; return (b/1048576).toFixed(1)+' MB'; }
 function toHex(c) {
   if (c.startsWith('#')) { const h=c.replace('#',''); return h.length===3 ? '#'+h.split('').map(x=>x+x).join('') : '#'+h.substring(0,6); }
