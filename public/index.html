@@ -1032,6 +1032,24 @@ label { font-size: 12px; font-weight: 500; color: var(--text-secondary); display
 .topbar-icon-btn:hover { background: var(--bg-tertiary); color: var(--text-primary); border-color: var(--accent); }
 .topbar-icon-btn svg { width: 18px; height: 18px; stroke: currentColor; fill: none; stroke-width: 1.75; stroke-linecap: round; stroke-linejoin: round; }
 
+/* Add menu dropdown */
+.add-menu-item {
+  display: block;
+  width: 100%;
+  padding: 7px 12px;
+  border: none;
+  background: none;
+  color: var(--text-primary);
+  font-size: 12px;
+  font-weight: 500;
+  text-align: left;
+  cursor: pointer;
+  border-radius: 4px;
+  transition: background 0.12s ease;
+  font-family: inherit;
+}
+.add-menu-item:hover { background: var(--bg-tertiary); color: var(--accent); }
+
 /* Scrollbar */
 ::-webkit-scrollbar { width: 6px; height: 6px; }
 ::-webkit-scrollbar-track { background: transparent; }
@@ -2173,6 +2191,20 @@ function renderVisualView() {
             }).join('')}
           </select>
           <button class="topbar-icon-btn" onclick="visualRefresh()" title="Refresh page"><svg viewBox="0 0 24 24"><path d="M21 2v6h-6"/><path d="M3 12a9 9 0 0 1 15-6.7L21 8"/><path d="M3 22v-6h6"/><path d="M21 12a9 9 0 0 1-15 6.7L3 16"/></svg></button>
+          <div style="width:1px;height:20px;background:var(--border);margin:0 2px;flex-shrink:0;"></div>
+          <button class="topbar-icon-btn" onclick="insertBlock('text')" title="Add Text" style="font-size:13px;width:auto;padding:0 8px;gap:4px;"><span style="font-size:14px;">¶</span><span style="font-size:10px;font-weight:600;">Text</span></button>
+          <button class="topbar-icon-btn" onclick="insertBlock('image')" title="Add Image" style="font-size:13px;width:auto;padding:0 8px;gap:4px;"><span style="font-size:14px;">🖼</span><span style="font-size:10px;font-weight:600;">Image</span></button>
+          <button class="topbar-icon-btn" onclick="insertBlock('video')" title="Add Video" style="font-size:13px;width:auto;padding:0 8px;gap:4px;"><span style="font-size:14px;">🎬</span><span style="font-size:10px;font-weight:600;">Video</span></button>
+          <div class="add-more-dropdown" style="position:relative;">
+            <button class="topbar-icon-btn" onclick="toggleAddMenu(this)" title="More blocks" style="font-size:16px;width:28px;">+</button>
+            <div class="add-more-menu" style="display:none;position:absolute;top:36px;left:0;z-index:100;background:var(--bg-primary);border:1px solid var(--border);border-radius:8px;box-shadow:0 8px 24px rgba(0,0,0,0.12);padding:4px;min-width:140px;">
+              <button class="add-menu-item" onclick="insertBlock('heading');closeAddMenu()">T Heading</button>
+              <button class="add-menu-item" onclick="insertBlock('button');closeAddMenu()">⬚ Button</button>
+              <button class="add-menu-item" onclick="insertBlock('divider');closeAddMenu()">─ Divider</button>
+              <button class="add-menu-item" onclick="insertBlock('spacer');closeAddMenu()">↕ Spacer</button>
+              <button class="add-menu-item" onclick="insertBlock('html');closeAddMenu()">&lt;/&gt; HTML</button>
+            </div>
+          </div>
           <div class="breakpoint-group">
             <button class="breakpoint-btn active" data-bp="desktop" onclick="setBreakpoint('desktop')" title="Desktop (100%)"><svg viewBox="0 0 24 24"><rect x="2" y="3" width="20" height="14" rx="2"/><path d="M8 21h8"/><path d="M12 17v4"/></svg></button>
             <button class="breakpoint-btn" data-bp="tablet" onclick="setBreakpoint('tablet')" title="Tablet (768px)"><svg viewBox="0 0 24 24"><rect x="4" y="2" width="16" height="20" rx="2"/><path d="M12 18h.01"/></svg></button>
@@ -5038,153 +5070,6 @@ async function doInsertHtml(htmlSnippet, blockName) {
   }
 }
 
-// ═══════════════════════════════════════════
-//  ADD BLOCK — Insert new elements into the page
-// ═══════════════════════════════════════════
-
-const BLOCK_TEMPLATES = {
-  heading: '<h2 data-ch-added="1" style="padding:16px 24px;font-size:28px;font-weight:700;color:#1a1f36;">New Heading</h2>',
-  text: '<p data-ch-added="1" style="padding:12px 24px;font-size:16px;line-height:1.6;color:#374151;">Add your text here. Double-click to edit.</p>',
-  image: '<img data-ch-added="1" src="data:image/svg+xml,%3Csvg xmlns=\'http://www.w3.org/2000/svg\' width=\'800\' height=\'400\' fill=\'%23e5e7eb\'%3E%3Crect width=\'800\' height=\'400\'/%3E%3Ctext x=\'50%25\' y=\'50%25\' dominant-baseline=\'middle\' text-anchor=\'middle\' font-family=\'sans-serif\' font-size=\'24\' fill=\'%239ca3af\'%3EClick to replace image%3C/text%3E%3C/svg%3E" alt="Placeholder image" style="max-width:100%;height:auto;display:block;margin:16px auto;" />',
-  button: '<a data-ch-added="1" href="#" style="display:inline-block;padding:14px 32px;margin:16px 24px;background:#5b4bd5;color:#fff;font-size:16px;font-weight:600;text-decoration:none;border-radius:8px;text-align:center;cursor:pointer;">Click Me</a>',
-  video: '<video data-ch-added="1" controls muted style="max-width:100%;margin:16px auto;display:block;background:#000;min-height:200px;" poster=""><source src="" type="video/mp4"></video>',
-  divider: '<hr data-ch-added="1" style="border:none;border-top:2px solid #e5e7eb;margin:24px;" />',
-  spacer: '<div data-ch-added="1" style="height:48px;"></div>',
-  html: null // Prompts for custom HTML
-};
-
-function insertBlock(type) {
-  const iframe = document.getElementById('visualFrame');
-  if (!iframe) { toast('No page loaded', 'error'); return; }
-
-  if (type === 'html') {
-    openModal(`
-      <div class="modal-header"><h3>&lt;/&gt; Custom HTML</h3><button class="modal-close" onclick="closeModal()">✕</button></div>
-      <div class="modal-body">
-        <div class="form-group">
-          <label>HTML Code</label>
-          <textarea id="customHtmlInput" rows="8" placeholder='<div style="padding:20px;">Your custom HTML...</div>' style="font-family:monospace;font-size:12px;"></textarea>
-        </div>
-      </div>
-      <div class="modal-footer">
-        <button class="btn btn-secondary" onclick="closeModal()">Cancel</button>
-        <button class="btn btn-primary" onclick="doInsertCustomHtml()">Insert</button>
-      </div>
-    `);
-    return;
-  }
-
-  if (type === 'image') {
-    // For images, let user pick a file first, upload it, then insert
-    const input = document.createElement('input');
-    input.type = 'file';
-    input.accept = 'image/*';
-    input.onchange = async (e) => {
-      const file = e.target.files[0];
-      if (!file) return;
-      const fd = new FormData();
-      fd.append('image', file);
-      fd.append('targetPath', 'images/added-' + Date.now() + '-' + file.name);
-      try {
-        toast('Uploading...', 'info');
-        const res = await fetch('/api/image/upload', { method: 'POST', body: fd, credentials: 'same-origin' });
-        const d = await res.json();
-        if (d.ok) {
-          const imgHtml = '<img data-ch-added="1" src="' + d.path + '" alt="' + file.name.replace(/\.[^.]+$/, '') + '" style="max-width:100%;height:auto;display:block;margin:16px auto;" />';
-          doInsertHtml(imgHtml);
-        } else {
-          // Fallback: insert placeholder
-          toast('Upload failed — inserting placeholder', 'warning');
-          doInsertHtml(BLOCK_TEMPLATES.image);
-        }
-      } catch (err) {
-        toast('Upload error', 'error');
-        doInsertHtml(BLOCK_TEMPLATES.image);
-      }
-    };
-    input.click();
-    return;
-  }
-
-  if (type === 'video') {
-    // Show a quick URL prompt for videos
-    openModal(`
-      <div class="modal-header"><h3>🎬 Add Video</h3><button class="modal-close" onclick="closeModal()">✕</button></div>
-      <div class="modal-body">
-        <div class="form-group">
-          <label>Video URL</label>
-          <input type="text" id="addVideoUrl" placeholder="YouTube URL, Vimeo URL, or direct .mp4 link" />
-          <p style="font-size:10px;color:var(--text-muted);margin-top:4px;">YouTube/Vimeo URLs auto-convert to embeds</p>
-        </div>
-        <div class="form-group">
-          <label>Or Upload</label>
-          <input type="file" id="addVideoFile" accept="video/mp4,video/webm,.mp4,.webm" style="font-size:12px;" />
-        </div>
-      </div>
-      <div class="modal-footer">
-        <button class="btn btn-secondary" onclick="closeModal()">Cancel</button>
-        <button class="btn btn-primary" onclick="doInsertVideo()">Insert</button>
-      </div>
-    `);
-    return;
-  }
-
-  const template = BLOCK_TEMPLATES[type];
-  if (!template) { toast('Unknown block type', 'error'); return; }
-  doInsertHtml(template);
-}
-
-function doInsertHtml(html) {
-  const iframe = document.getElementById('visualFrame');
-  if (!iframe) return;
-  try {
-    const doc = iframe.contentDocument || iframe.contentWindow.document;
-    const win = iframe.contentWindow;
-
-    // Insert after the currently selected element, or at end of body
-    let target = win._chSelectedEl;
-    const temp = doc.createElement('div');
-    temp.innerHTML = html;
-    const newEl = temp.firstElementChild;
-    if (!newEl) return;
-
-    if (target && target.parentElement) {
-      target.parentElement.insertBefore(newEl, target.nextSibling);
-    } else {
-      // No selection — append to body (before scripts)
-      const scripts = doc.querySelectorAll('body > script');
-      if (scripts.length > 0) {
-        doc.body.insertBefore(newEl, scripts[0]);
-      } else {
-        doc.body.appendChild(newEl);
-      }
-    }
-
-    // Flash green to indicate success
-    newEl.style.transition = 'outline 0.3s ease';
-    newEl.style.outline = '3px solid rgba(34, 197, 94, 0.8)';
-    setTimeout(() => {
-      newEl.style.outline = '';
-      newEl.style.transition = '';
-    }, 1500);
-
-    // Save and notify
-    saveCurrentPageDOM().then(() => {
-      toast('Block added ✓');
-      scanData = api('/api/scan').then(d => { scanData = d; });
-    });
-  } catch (e) {
-    toast('Failed to insert: ' + e.message, 'error');
-  }
-}
-
-function doInsertCustomHtml() {
-  const html = document.getElementById('customHtmlInput')?.value?.trim();
-  if (!html) { toast('Enter some HTML', 'info'); return; }
-  closeModal();
-  doInsertHtml(html);
-}
-
 async function doInsertVideo() {
   const url = document.getElementById('addVideoUrl')?.value?.trim();
   const fileInput = document.getElementById('addVideoFile');
@@ -5228,6 +5113,29 @@ async function doInsertVideo() {
   }
 
   toast('Enter a URL or upload a file', 'info');
+}
+
+// ═══════════════════════════════════════════
+//  ADD MENU DROPDOWN (topbar + button)
+// ═══════════════════════════════════════════
+function toggleAddMenu(btn) {
+  const menu = btn.parentElement.querySelector('.add-more-menu');
+  if (!menu) return;
+  const isOpen = menu.style.display !== 'none';
+  menu.style.display = isOpen ? 'none' : '';
+  if (!isOpen) {
+    // Close on outside click
+    const handler = (e) => {
+      if (!btn.parentElement.contains(e.target)) {
+        menu.style.display = 'none';
+        document.removeEventListener('click', handler);
+      }
+    };
+    setTimeout(() => document.addEventListener('click', handler), 0);
+  }
+}
+function closeAddMenu() {
+  document.querySelectorAll('.add-more-menu').forEach(m => m.style.display = 'none');
 }
 
 function showAiRewritePanel() {
